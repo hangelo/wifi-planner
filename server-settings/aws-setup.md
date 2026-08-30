@@ -2,7 +2,7 @@
 
 How `wifiplanner.handcraftingcodes.com` is served: a private S3 bucket behind
 CloudFront, with TLS from ACM and DNS from Route 53. Nothing in `website/`
-needs a build step — the five files are uploaded as they are.
+needs a build step — the files are uploaded as they are.
 
 ```
 Route 53 (A + AAAA alias)
@@ -200,11 +200,13 @@ Content types matter: S3 will otherwise serve the JS as
 ```bash
 cd website
 
-aws s3 cp index.html s3://wifiplanner.website/index.html \
-  --content-type "text/html; charset=utf-8" \
-  --cache-control "public, max-age=0, must-revalidate"
+for f in index.html terms.html; do
+  aws s3 cp "$f" "s3://wifiplanner.website/$f" \
+    --content-type "text/html; charset=utf-8" \
+    --cache-control "public, max-age=0, must-revalidate"
+done
 
-for f in app.js planimport.js importui.js; do
+for f in app.js planimport.js importui.js consent.js; do
   aws s3 cp "$f" "s3://wifiplanner.website/$f" \
     --content-type "text/javascript; charset=utf-8" \
     --cache-control "public, max-age=300"

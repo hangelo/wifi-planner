@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terms of use — WiFi Planner</title>
+<meta name="description" content="WiFi Planner is free to use. Floor plans are processed entirely in your browser and are never uploaded or stored.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap doc">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow"><a href="index.html">← WiFi Planner</a></div>
+    <h1>Terms of use</h1>
+    <p>Last updated 30 August 2026.</p>
+  </div>
+</header>
+
+<h2>What this is</h2>
+<p>WiFi Planner estimates how a Wi-Fi signal spreads through a floor plan. It is
+free. There is no account, no sign-up, no payment and no advertising, and there
+is no limit on what you use it for, including commercially.</p>
+
+<h2>Your floor plans stay on your device</h2>
+<p>When you import a floor plan, the image is decoded, segmented into walls and
+measured entirely inside your browser. It is never uploaded, never transmitted
+and never stored. There is nowhere for it to go: this site is a handful of
+static files with no server behind them and no database anywhere.</p>
+<p>The same holds for everything else you do here — router positions, wall
+materials, room names, stairwells, imported geometry. None of it is saved.
+Close the tab or reload the page and it is gone.</p>
+
+<h2>What is stored on your device</h2>
+<p>Exactly one thing: a single entry in your browser's local storage recording
+whether you accepted analytics cookies. Nothing else is written, and that entry
+never leaves your device. You can change or clear it at any time with the
+<b>Cookie choice</b> link at the bottom of the page.</p>
+
+<h2>Analytics</h2>
+<p>If you accept, the site loads Google Analytics, which sets cookies and
+reports to Google that a page was viewed, along with an approximate location
+derived from your IP address and basic device and browser information. It does
+not receive your floor plan, your router positions or anything else you do
+inside the tool — none of that ever exists outside your browser.</p>
+<p>If you decline, Google Analytics is not loaded at all. The script is never
+fetched and no cookies are set. Everything on the site works exactly as it
+otherwise would.</p>
+<p>What Google does with data it collects is governed by the
+<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google privacy policy</a>.</p>
+
+<h2>Fonts</h2>
+<p>The page loads two typefaces from Google Fonts. That request reveals your IP
+address to Google, and it happens as the page loads, before any cookie choice,
+because it is part of rendering the page rather than tracking. If you would
+rather it did not happen, any content blocker will stop it and the site falls
+back to your system fonts with no loss of function.</p>
+
+<h2>Accuracy, and what not to rely on this for</h2>
+<p>The coverage maps are the output of a propagation model, not measurements.
+The tool estimates loss from the wall geometry you give it using typical
+published figures for common building materials. Real buildings vary a great
+deal: foil-backed insulation, pipework and ducting, large appliances, mirrors,
+underfloor heating, furniture, people, and the neighbours' networks all change
+the answer, and none of them are modelled.</p>
+<p>Treat the results as a way to compare one router position against another,
+not as a survey. Do not rely on them for professional installation work,
+contractual commitments, regulatory compliance, or any decision where being
+wrong carries a cost. The tool is provided as is, without warranty of any kind,
+express or implied, and without liability for any outcome of its use.</p>
+
+<h2>No affiliation</h2>
+<p>WiFi Planner is not affiliated with, endorsed by or connected to any router
+manufacturer, internet service provider, or the Wi-Fi Alliance. Wi-Fi is a
+registered trademark of the Wi-Fi Alliance.</p>
+
+<h2>Changes</h2>
+<p>These terms may change. The date at the top of the page says when they last
+did.</p>
+
+<footer class="foot">
+  <span>WiFi Planner — free to use. Floor plans never leave your browser.</span>
+  <span class="spacer"></span>
+  <a href="index.html">Back to the planner</a>
+  <button class="linkbtn" id="cookieBtn">Cookie choice</button>
+</footer>
+
+</div>
+
+<script src="consent.js"></script>
+</body>
+</html>

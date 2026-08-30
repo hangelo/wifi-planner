@@ -311,3 +311,28 @@ td .rn{display:flex;align-items:center}
 .scope.two .readout{position:static;order:1;margin:12px 0 10px 12px;flex:0 1 auto}
 .scope.two .legend{position:static;order:2;margin:12px 12px 10px auto;flex:0 1 auto}
 .scope.two #cv{order:3;flex:0 0 100%;width:100%}
+
+/* ---------- footer, cookie banner, document pages ---------- */
+.foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:30px;
+  padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+.foot .spacer{flex:1}
+.foot a,.linkbtn{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--line-2)}
+.foot a:hover,.linkbtn:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.linkbtn{background:none;border:0;border-bottom:1px solid var(--line-2);padding:0;
+  font:inherit;cursor:pointer}
+
+.cbar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:flex;align-items:center;
+  gap:16px;flex-wrap:wrap;padding:14px 20px;background:var(--surface);
+  border-top:1px solid var(--line);box-shadow:0 -6px 24px -14px rgba(20,26,24,.35)}
+.cbar p{margin:0;flex:1 1 320px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+.cbar a{color:var(--accent)}
+.cbtns{display:flex;gap:8px;flex:0 0 auto}
+
+/* terms and other prose pages */
+.doc{max-width:760px}
+.doc h2{font-size:15px;margin:26px 0 8px}
+.doc p{margin:0 0 11px;font-size:14px;line-height:1.65;color:var(--ink-2)}
+.doc a{color:var(--accent)}
+.doc .eyebrow a{text-decoration:none}
+.doc .top{display:block;margin-bottom:4px}
+.doc .top p{margin-top:6px}
