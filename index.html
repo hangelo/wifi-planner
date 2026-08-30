@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WiFi Planner</title>
+<meta name="description" content="Map how Wi-Fi propagates through a home. Drag a router across one or two floor plans and see coverage recomputed from real wall geometry with a dominant-path model.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow" id="mEyebrow">Indoor RF coverage · 1320 × 1066 cm plan</div>
+    <h1>WiFi Planner</h1>
+    <p>Drag the router across the floor plan. Coverage is recomputed from the actual wall geometry using a dominant-path model — signal takes the cheapest route it can find, through masonry or around it via doorways.</p>
+  </div>
+  <div class="planmeta">
+    <div><div class="k">Floor area</div><div class="v" id="mArea">—</div></div>
+    <div><div class="k">Walls</div><div class="v" id="mWalls">37 cm</div></div>
+    <div><div class="k">Rooms</div><div class="v" id="mRooms">6</div></div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ============ RAIL ============ -->
+  <div class="rail">
+
+    <div class="card">
+      <div class="hd"><h3>Radio</h3></div>
+      <div class="bd">
+        <div class="seg" id="bandSeg" role="group" aria-label="Band">
+          <button data-band="2.4" aria-pressed="true">2.4 GHz</button>
+          <button data-band="5" aria-pressed="false">5 GHz</button>
+        </div>
+        <label class="f"><span>Transmit power <b id="vTx">20 dBm</b></span>
+          <input type="range" id="tx" min="5" max="27" step="1" value="20"></label>
+        <label class="f"><span>Antenna gain <b id="vGain">3 dBi</b></span>
+          <input type="range" id="gain" min="0" max="9" step="0.5" value="3"></label>
+        <label class="f"><span>Channel width</span>
+          <select id="bw">
+            <option value="20">20 MHz</option>
+            <option value="40" selected>40 MHz</option>
+            <option value="80">80 MHz</option>
+          </select></label>
+        <label class="f"><span>Spatial streams</span>
+          <select id="ss"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3>Access points</h3><span class="mono" style="font-size:11px;color:var(--ink-3)" id="apCount">1</span></div>
+      <div class="bd">
+        <div class="aplist" id="apList"></div>
+        <div class="btnrow">
+          <button class="btn" id="addAp">Add node</button>
+          <button class="btn primary" id="bestBtn">Find best spot</button>
+        </div>
+        <p class="hint" id="bestHint">Click a router to select it, then drag it anywhere — including outdoors. “Find best spot” searches every reachable position for the placement with the most floor area above the target level.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3>Floors</h3><span class="mono" style="font-size:11px;color:var(--ink-3)" id="floorCount">1</span></div>
+      <div class="bd">
+        <div class="btnrow">
+          <button class="btn" id="addFloor">Add upper floor</button>
+          <button class="btn" id="delFloor" hidden>Remove upper floor</button>
+        </div>
+        <div id="floorOnly" hidden>
+          <label class="f"><span>Floor-to-floor height <b id="vFloorH">280 cm</b></span>
+            <input type="range" id="floorH" min="200" max="400" step="5" value="280"></label>
+          <label class="f"><span>Floor slab <b id="vSlab">—</b></span>
+            <select id="slabMat"></select></label>
+          <div class="subhd"><span>Stairwells &amp; voids</span><button class="btn sm" id="addStair">Draw</button></div>
+          <div class="oplist" id="stairList"></div>
+          <p class="hint">A stairwell is a hole in the slab — signal crosses between floors there at no cost, which is usually the only reason an upstairs router reaches downstairs at all. Draw one over the stairs; it applies to both floors at once. Drag the router onto the other panel to move it between storeys.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3>Construction</h3></div>
+      <div class="bd">
+        <label class="f"><span>Exterior walls <b id="vExt">—</b></span>
+          <select id="extMat"></select></label>
+        <label class="f"><span>Interior walls <b id="vInt">—</b></span>
+          <select id="intMat"></select></label>
+        <label class="f"><span>Furniture &amp; clutter <b id="vClutter">N = 24</b></span>
+          <input type="range" id="clutter" min="20" max="30" step="0.5" value="24"></label>
+        <p class="hint">The clutter exponent absorbs furniture, people and floor/ceiling reflections. N = 20 is pure free space; 28–30 is a heavily furnished apartment.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3>Doors &amp; openings</h3></div>
+      <div class="bd">
+        <div class="oplist" id="opList"></div>
+        <p class="hint" id="opHint">Openings are the main way signal reaches other rooms. Drag their handles on the plan to move them along a wall.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3>Display</h3></div>
+      <div class="bd">
+        <div class="seg" id="modeSeg" role="group" aria-label="Display mode">
+          <button data-mode="rssi" aria-pressed="true">Signal</button>
+          <button data-mode="bands" aria-pressed="false">Grades</button>
+          <button data-mode="rate" aria-pressed="false">Speed</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="showContour" checked> Coverage contours</label>
+        <label class="chk"><input type="checkbox" id="showPath" checked> Trace signal path on hover</label>
+        <label class="chk"><input type="checkbox" id="showGrid"> Dimension grid (1 m)</label>
+        <label class="f"><span>Coverage target <b id="vTarget">−67 dBm</b></span>
+          <input type="range" id="target" min="-85" max="-55" step="1" value="-67"></label>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ STAGE ============ -->
+  <div class="stage">
+    <div class="scope" id="scope">
+      <canvas id="cv"></canvas>
+      <div class="readout" id="readout">
+        <span class="big mono" id="roVal">—</span>
+        <span class="grade" id="roGrade">move over the plan</span>
+        <div id="roRest" style="margin-top:6px"></div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="toolbar">
+      <span class="mono" style="font-size:11.5px;color:var(--ink-3)" id="solveInfo">—</span>
+      <span class="spacer"></span>
+      <button class="btn primary" id="importBtn">Import floor plan</button>
+      <button class="btn" id="resetBtn">Reset plan</button>
+      <button class="btn" id="exportBtn">Export geometry</button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr>
+          <th>Room</th><th>Area</th><th>Median</th><th>Weakest</th>
+          <th>Coverage</th><th style="width:120px"></th><th>Speed at median</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot id="tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<details class="notes">
+  <summary>How the simulation works, and where the numbers come from</summary>
+  <div class="notesbd">
+
+    <h4>The model</h4>
+    <p>Every point on the floor gets the strongest signal it can receive by <em>any</em> route. The floor is rasterised at 6 cm and a least-loss path search (Dijkstra) runs outward from the router across that raster. Each step pays two costs: geometric spreading, and whatever material it passes through. Because the search is free to route around a wall instead of through it, signal bends through doorways and along the courtyard exactly as it does in practice — which is the failure mode of naive line-of-sight ray casting, and the idea behind the Dominant Path Model of Wölfle &amp; Landstorfer.</p>
+
+    <div class="eqn">L = 20·log₁₀(f) + N·log₁₀(d_path) + Σ(wall losses) + L_diffraction
+RSSI = P_tx + G_ant − L</div>
+
+    <ul>
+      <li><b>Band constant</b> — 40.2 dB at 2.4 GHz, 47.3 dB at 5 GHz (free-space loss at 1 m). 5 GHz starts 7.1 dB behind at every distance before a single wall is counted.</li>
+      <li><b>N</b> — distance exponent × 10. Free space is 20; the clutter slider raises it to account for furniture, people and reflections that the geometry does not describe.</li>
+      <li><b>Wall losses</b> are integrated along the actual path, so an oblique crossing costs more than a perpendicular one. Total wall loss is capped at 60 dB (2.4 GHz) / 70 dB (5 GHz) — past that, energy always arrives by some flanking route rather than straight through.</li>
+      <li><b>L_diffraction</b> penalises paths that detour: the further the winning path stretches beyond the straight-line distance, the more it pays, up to 14 dB. This is the cost of bending around a corner, and it saturates rather than compounding — matching what both the Dominant Path and Geodesic Path models report.</li>
+      <li><b>Noise floor</b> — −92 dBm at 2.4 GHz, −95 dBm at 5 GHz for a 20 MHz channel, rising 3 dB per doubling of channel width. Speed comes from the standard 802.11ac/ax MCS-versus-SNR table.</li>
+    </ul>
+
+    <h4>Wall attenuation</h4>
+    <p>Materials are specified as loss per wall crossing at this plan's 37 cm thickness, then converted to dB per metre internally. The values are whole-assembly figures — what you measure with a radio either side of a real wall — not bare-slab laboratory transmission, which understates a built wall by several dB. Masonry is where the two bands diverge hardest: NIST measured 203 mm concrete at 29 dB on 2.4 GHz and 48 dB on 5 GHz, while drywall and glass are near-identical on both.</p>
+
+    <h4>What it deliberately does not do</h4>
+    <p>This is a 2D single-floor median-field predictor. It has no ceiling or floor slab, no explicit specular reflections, no furniture, and no fast fading. Real measurements scatter around a well-calibrated indoor prediction by roughly 5–8 dB, so read the contours as bands, not lines. Treat a result within about 6 dB of the target as "probably fine, go measure it."</p>
+
+    <h4>Reading the plan</h4>
+    <p>Geometry was traced from the supplied floor plan and reconciled against its dimension chains: 37 + 400 + 74 + 98 + 136 + 538 + 37 = 1320 cm across the top, 1066 cm down the side. All six rooms reproduce their stated areas to within 2%. Interior circulation is inferred — the doors and openings are editable, and moving them changes the answer a great deal.</p>
+
+    <h4>Sources</h4>
+    <ul class="srclist">
+      <li><a href="https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.1238-12-202308-S!!PDF-E.pdf" target="_blank" rel="noopener">ITU-R P.1238-12</a> — indoor path loss, distance exponents</li>
+      <li><a href="https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.2040-3-202308-S!!PDF-E.pdf" target="_blank" rel="noopener">ITU-R P.2040-3</a> — building material electrical properties</li>
+      <li><a href="https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.526-14-201801-I!!PDF-E.pdf" target="_blank" rel="noopener">ITU-R P.526-14</a> — knife-edge diffraction</li>
+      <li><a href="https://duepublico2.uni-due.de/servlets/MCRFileNodeServlet/duepublico_derivate_00014581/Paper/6b_4.pdf" target="_blank" rel="noopener">Wölfle &amp; Landstorfer</a> — Dominant Path Prediction Model</li>
+      <li><a href="https://www.mdpi.com/1424-8220/22/13/4903" target="_blank" rel="noopener">Geodesic Path Model</a> — Sensors 22:4903, 2022</li>
+      <li><a href="https://help.altair.com/winprop/topics/winprop/user_guide/proman/propagation_models/indoor_empirical_models_cost_multiwall.htm" target="_blank" rel="noopener">COST 231 Multi-Wall Model</a></li>
+      <li><a href="https://boca.lighting/docs/BocaLightingandControls_Attenuation-of-Building-Materials.pdf" target="_blank" rel="noopener">NIST IR 6055</a> — material attenuation, 2.4 vs 5 GHz</li>
+      <li><a href="https://www.am1.us/wp-content/uploads/Documents/E10589_Propagation_Losses_2_and_5GHz.pdf" target="_blank" rel="noopener">Magis / USC E10589</a> — anechoic slab measurements</li>
+      <li><a href="https://www.cisco.com/c/en/us/td/docs/wireless/controller/9800/technical-reference/wireless-rf-reference-guide.html" target="_blank" rel="noopener">Cisco RF Reference Guide</a> — design thresholds</li>
+      <li><a href="https://revolutionwifi.blogspot.com/2014/09/wi-fi-snr-to-mcs-data-rate-mapping.html" target="_blank" rel="noopener">Revolution Wi-Fi</a> — SNR to MCS mapping</li>
+      <li><a href="https://www.mist.com/documentation/rssi-values-good-bad-signal-strength/" target="_blank" rel="noopener">Juniper Mist</a> — RSSI quality bands</li>
+    </ul>
+  </div>
+</details>
+
+</div>
+
+
+<!-- ============ IMPORT ============ -->
+<div class="impdlg" id="impDlg" hidden role="dialog" aria-modal="true" aria-label="Import a floor plan">
+  <div class="impbox">
+    <div class="imphd">
+      <h3>Import a floor plan</h3>
+      <span class="mono" id="impStatus">drop a PNG or JPEG</span>
+      <button class="impx" id="impClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="impbody">
+      <div class="impdrop" id="impDrop">
+        <strong>Drop a floor plan here</strong>
+        <span>PNG or JPEG — click to browse, or paste from the clipboard</span>
+        <input type="file" id="impFile" accept="image/png,image/jpeg,image/webp" hidden>
+      </div>
+      <div class="impstage" id="impStage" hidden><canvas id="impCv"></canvas></div>
+      <div class="imppanel" id="impPanel" hidden></div>
+    </div>
+    <div class="impft">
+      <span class="impinto" id="impInto" hidden>Import into
+        <select id="impFloor"><option value="0">Lower floor</option><option value="1">Upper floor</option></select>
+      </span>
+      <p class="warn" id="impWarn" hidden></p>
+      <span class="spacer"></span>
+      <button class="btn" id="impCancel">Cancel</button>
+      <button class="btn primary" id="impUse" disabled>Use this plan</button>
+    </div>
+  </div>
+</div>
+
+<script src="planimport.js"></script>
+<script src="app.js"></script>
+<script src="importui.js"></script>
+</body>
+</html>
