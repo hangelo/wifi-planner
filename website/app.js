@@ -1,10 +1,15 @@
 "use strict";
 
 /* ============================================================
-   1. GEOMETRY  — traced from the supplied plan, in centimetres
+   1. GEOMETRY — the starter plan, in centimetres
+
+   Deliberately trivial: two rooms and the doorway between them.
+   It exists to be poked at — drag the router through the door and
+   watch the far room fall away — not to model anybody's house.
+   Import a floor plan to replace it.
    ============================================================ */
 const BASE_PLAN = {
-  W: 1320, H: 1066, wallT: 37,
+  W: 975, H: 500, wallT: 25,
   nz: 1,                     /* how many floors are modelled */
   floorH: 280,               /* floor-to-floor, cm — the vertical hop between levels */
   slab: "hollowblock",
@@ -15,30 +20,15 @@ const BASE_PLAN = {
      Shared by both floors, because it is the hole between them. */
   stairs: [],
   footprint: [
-    {x:708, y:0,   w:612,  h:486, floor:0},
-    {x:848, y:486, w:472,  h:106, floor:0},
-    {x:0,   y:155, w:646,  h:331, floor:0},
-    {x:0,   y:486, w:474,  h:106, floor:0},
-    {x:0,   y:592, w:1320, h:474, floor:0}
+    {x:0, y:0, w:975, h:500, floor:0}
   ],
   rooms: [
-    {id:"A", name:"Room A", x:745, y:37,  w:538, h:412, area:22.06, floor:0},
-    {id:"B", name:"Room B", x:37,  y:192, w:400, h:400, area:16.00, floor:0},
-    {id:"C", name:"Room C", x:511, y:192, w:98,  h:255, area:2.50,  floor:0},
-    {id:"D", name:"Room D", x:885, y:497, w:398, h:97,  area:3.86,  floor:0},
-    {id:"E", name:"Room E", x:37,  y:629, w:474, h:400, area:18.95, floor:0},
-    {id:"F", name:"Room F", x:550, y:629, w:733, h:400, area:29.30, floor:0}
+    {id:"A", name:"Room A", x:25,  y:25, w:450, h:450, area:20.25, floor:0},
+    {id:"B", name:"Room B", x:500, y:25, w:450, h:450, area:20.25, floor:0}
   ],
   /* `lim` is how far the opening may slide along its own wall */
   openings: [
-    {id:"o1", label:"A → entry",     x:708,  y:45,  w:37, h:95, axis:"v", type:"hollow", lim:[40,350],   floor:0},
-    {id:"o2", label:"A → D",         x:1090, y:449, w:90, h:48, axis:"h", type:"hollow", lim:[888,1190], floor:0},
-    {id:"o3", label:"C → courtyard", x:520,  y:447, w:80, h:39, axis:"h", type:"hollow", lim:[513,527],  floor:0},
-    {id:"o4", label:"B → courtyard", x:437,  y:495, w:37, h:85, axis:"v", type:"hollow", lim:[489,505],  floor:0},
-    {id:"o5", label:"D → courtyard", x:848,  y:505, w:37, h:80, axis:"v", type:"hollow", lim:[499,512],  floor:0},
-    {id:"o6", label:"D → F",         x:950,  y:594, w:90, h:35, axis:"h", type:"open",   lim:[888,1190], floor:0},
-    {id:"o7", label:"F → courtyard", x:615,  y:592, w:95, h:37, axis:"h", type:"open",   lim:[553,750],  floor:0},
-    {id:"o8", label:"E → F",         x:511,  y:700, w:39, h:95, axis:"v", type:"hollow", lim:[632,931],  floor:0}
+    {id:"o1", label:"Room A → Room B", x:475, y:205, w:25, h:90, axis:"v", type:"hollow", lim:[25,385], floor:0}
   ]
 };
 let PLAN = structuredClone(BASE_PLAN);
@@ -137,7 +127,7 @@ let state = {
   extMat:"hollow", intMat:"hollow", clutter:24,
   mode:"rssi", target:-67,
   contour:true, path:true, grid:false,
-  aps:[{x:1014, y:243, f:0, id:0}],
+  aps:[{x:250, y:250, f:0, id:0}],
   selAp:0,
   selStair:-1,
   stairMode:false
@@ -1398,7 +1388,7 @@ document.getElementById("addAp").addEventListener("click",()=>{
 });
 document.getElementById("resetBtn").addEventListener("click",()=>{
   PLAN=structuredClone(BASE_PLAN);
-  state.aps=[{x:1014,y:243,f:0,id:0}]; state.selAp=0; state.selStair=-1;
+  state.aps=[{x:250,y:250,f:0,id:0}]; state.selAp=0; state.selStair=-1;
   setStairMode(false);
   geomVersion++; rasterCache.clear();
   syncFloorUI(); updatePlanMeta(); renderOpList(); renderApList(); layout(); recompute();
